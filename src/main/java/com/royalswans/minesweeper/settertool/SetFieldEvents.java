@@ -53,9 +53,9 @@ public class SetFieldEvents implements Listener {
                 e.getPlayer().sendMessage(
                         ChatColor.GREEN + "Set first block to: "
                                 + clickedBlock.getX()
-                                + ' '
+                                + " / "
                                 + clickedBlock.getY()
-                                + ' '
+                                + " / "
                                 + clickedBlock.getZ());
 
                 prevBlock = clickedBlock;
