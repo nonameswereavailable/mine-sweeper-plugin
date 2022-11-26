@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -54,17 +56,6 @@ public class FieldEvents implements Listener {
         freeSquareCount = field.getFreeSquares(fieldArr);
 
         BuildField.buildField(rect, field, world);
-    }
-
-    private void spawnTorchParticles(World world, Location blockLoc) {
-        world.spawnParticle(
-                Particle.BLOCK_CRACK,
-                blockLoc.add(0.5, 0, 0.5),
-                10,
-                Material.REDSTONE_TORCH.createBlockData());
-        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
-
-        blockLoc.getBlock().setType(Material.AIR);
     }
 
     @EventHandler
@@ -186,6 +177,32 @@ public class FieldEvents implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onSandFall(EntityChangeBlockEvent event) {
+        Block block = event.getBlock();
+
+        int x = block.getX();
+        int z = block.getZ();
+
+        Bukkit.broadcast("2", "");
+
+        if (rect.contains(x, z) && block.getWorld().equals(this.world)) {
+            event.setCancelled(true);
+            Bukkit.broadcast("1", "");
+        }
+    }
+
+    private void spawnTorchParticles(World world, Location blockLoc) {
+        world.spawnParticle(
+                Particle.BLOCK_CRACK,
+                blockLoc.add(0.5, 0, 0.5),
+                10,
+                Material.REDSTONE_TORCH.createBlockData());
+        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
+
+        blockLoc.getBlock().setType(Material.AIR);
     }
 
     private void revealZero(int x, int z, World world) {
