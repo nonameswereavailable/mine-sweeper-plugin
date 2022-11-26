@@ -1,0 +1,10 @@
+name: MineSweeper
+version: '${project.version}'
+main: com.royalswans.minesweeper.MineSweeper
+api-version: 1.18
+authors: [ RoyalSwans ]
+description: A Mine Sweeper plugin :)
+commands:
+  getsetter:
+    description: Get Setter Tool
+    usage: /<command>
