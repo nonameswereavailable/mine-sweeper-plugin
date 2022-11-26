@@ -2,6 +2,7 @@ package com.royalswans.minesweeper.settertool;
 
 import com.royalswans.minesweeper.sweeperfield.FieldEvents;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Set;
@@ -19,6 +20,7 @@ public class Init {
         int endX;
         int endZ;
         int y;
+        World world;
 
         for (String field : fields) {
             startX = SetterConfig.getData(field, "startX");
@@ -26,8 +28,9 @@ public class Init {
             endX = SetterConfig.getData(field, "endX");
             endZ = SetterConfig.getData(field, "endZ");
             y = SetterConfig.getData(field, "y");
+            world = SetterConfig.getWorld(field);
 
-            Bukkit.getPluginManager().registerEvents(new FieldEvents(plugin, startX, startZ, endX, endZ, y), plugin);
+            Bukkit.getPluginManager().registerEvents(new FieldEvents(plugin, startX, startZ, endX, endZ, y, world), plugin);
         }
     }
 }

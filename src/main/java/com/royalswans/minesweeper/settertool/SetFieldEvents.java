@@ -3,6 +3,7 @@ package com.royalswans.minesweeper.settertool;
 import com.royalswans.minesweeper.sweeperfield.FieldEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,15 +38,22 @@ public class SetFieldEvents implements Listener {
                                 + " / "
                                 + clickedBlock.getZ());
 
-                int startX = prevBlock.getX() - 1;
-                int startZ = prevBlock.getZ() - 1;
-                int endX = clickedBlock.getX();
-                int endZ = clickedBlock.getZ();
+                int firstX = prevBlock.getX();
+                int firstZ = prevBlock.getZ();
+                int secondX = clickedBlock.getX();
+                int secondZ = clickedBlock.getZ();
                 int y = clickedBlock.getY();
 
-                SetterConfig.setField(startX, startZ, endX, endZ, y);
+                int startX = Math.min(firstX, secondX);
+                int startZ = Math.min(firstZ, secondZ);
+                int endX = Math.max(firstX, secondX);
+                int endZ = Math.max(firstZ, secondZ);
 
-                Bukkit.getPluginManager().registerEvents(new FieldEvents(plugin, startX, startZ, endX, endZ, y), plugin);
+                World world = e.getPlayer().getWorld();
+
+                SetterConfig.setField(startX, startZ, endX, endZ, y, world.getName());
+
+                Bukkit.getPluginManager().registerEvents(new FieldEvents(plugin, startX, startZ, endX, endZ, y, world), plugin);
 
                 prevBlock = null;
             }

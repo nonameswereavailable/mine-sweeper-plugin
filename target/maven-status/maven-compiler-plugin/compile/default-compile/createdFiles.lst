@@ -1,11 +1,1 @@
-com\royalswans\minesweeper\settertool\SetterTool.class
-com\royalswans\minesweeper\settertool\SetFieldEvents.class
-com\royalswans\minesweeper\sweeperfield\runnables\Reset.class
-com\royalswans\minesweeper\sweeperfield\FieldEvents.class
-com\royalswans\minesweeper\commands\SetterToolCommand.class
-com\royalswans\minesweeper\sweeperfield\runnables\LightTNT.class
-com\royalswans\minesweeper\settertool\Init.class
-com\royalswans\minesweeper\settertool\SetterConfig.class
-com\royalswans\minesweeper\sweeperfield\Field.class
-com\royalswans\minesweeper\MineSweeper.class
-com\royalswans\minesweeper\sweeperfield\runnables\Celebrate.class
+com/royalswans/minesweeper/sweeperfield/BuildField.class

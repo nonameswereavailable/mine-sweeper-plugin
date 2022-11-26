@@ -1,11 +1,14 @@
 package com.royalswans.minesweeper.settertool;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -30,7 +33,7 @@ public class SetterConfig {
         }
     }
 
-    public static void setField(int startX, int startZ, int endX, int endZ, int y) {
+    public static void setField(int startX, int startZ, int endX, int endZ, int y, String world) {
         String time = Long.toString(System.currentTimeMillis());
 
         if (customConfigFile != null) {
@@ -40,6 +43,7 @@ public class SetterConfig {
             customConfig.set("fields." + time + ".endX", endX);
             customConfig.set("fields." + time + ".endZ", endZ);
             customConfig.set("fields." + time + ".y", y);
+            customConfig.set("fields." + time + ".world", world);
 
 
             try {
@@ -70,6 +74,16 @@ public class SetterConfig {
         }
 
         return customConfig.getInt("fields." + field + '.' + data);
+    }
+
+    public static World getWorld(String field) {
+        if (customConfig == null) {
+            return null;
+        }
+
+        String worldName = customConfig.getString("fields." + field + '.' + "world");
+
+        return Bukkit.getWorld(worldName);
     }
 }
 

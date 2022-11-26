@@ -21,24 +21,23 @@ import java.util.Objects;
 
 public class FieldEvents implements Listener {
     private final JavaPlugin plugin;
-
     private final Rectangle rect;
     private final Field field;
-
+    private final World world;
     private final HashMap<Character, Material> blockMap = new HashMap<>();
-
     private ArrayList<ArrayList<Character>> fieldArr;
     private int freeSquareCount;
-
     private boolean isFirstClick = true;
     private boolean isOnReset = false;
 
 
-    public FieldEvents(JavaPlugin plugin, int startX, int startZ, int endX, int endZ, int y) {
+    public FieldEvents(JavaPlugin plugin, int startX, int startZ, int endX, int endZ, int y, World world) {
         this.plugin = plugin;
 
         this.rect = new Rectangle(startX, startZ, endX - startX, endZ - startZ);
         this.field = new Field(startX, startZ, endX, endZ, y);
+
+        this.world = world;
 
         blockMap.put('*', Material.TNT);
         blockMap.put('0', Material.WHITE_CONCRETE_POWDER);
@@ -53,6 +52,19 @@ public class FieldEvents implements Listener {
 
         this.fieldArr = field.generateField();
         freeSquareCount = field.getFreeSquares(fieldArr);
+
+        BuildField.buildField(rect, field, world);
+    }
+
+    private void spawnTorchParticles(World world, Location blockLoc) {
+        world.spawnParticle(
+                Particle.BLOCK_CRACK,
+                blockLoc.add(0.5, 0, 0.5),
+                10,
+                Material.REDSTONE_TORCH.createBlockData());
+        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
+
+        blockLoc.getBlock().setType(Material.AIR);
     }
 
     @EventHandler
@@ -67,13 +79,12 @@ public class FieldEvents implements Listener {
             Location blockLoc = clickedBlock.getLocation();
 
             Player player = e.getPlayer();
-            World world = player.getWorld();
 
             int x = clickedBlock.getX();
             int y = clickedBlock.getY();
             int z = clickedBlock.getZ();
 
-            if (rect.contains(x, z)) {
+            if (rect.contains(x, z) && player.getWorld().equals(this.world)) {
 
                 if (blockMap.containsValue(clickedBlock.getType())) {
                     e.setCancelled(true);
@@ -82,55 +93,13 @@ public class FieldEvents implements Listener {
 
                 if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
-                    if (clickedBlock.getType().equals(Material.REDSTONE_TORCH)) {
-                        world.spawnParticle(
-                                Particle.BLOCK_CRACK,
-                                blockLoc.add(0.5, 0, 0.5),
-                                10,
-                                Material.REDSTONE_TORCH.createBlockData());
-                        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
-
-                        clickedBlock.setType(Material.AIR);
-
-                        return;
-                    }
-
-                    if (blockLoc.add(0, 1, 0).getBlock().getType().equals(Material.REDSTONE_TORCH)) {
-                        world.spawnParticle(
-                                Particle.BLOCK_CRACK,
-                                blockLoc.add(0.5, 0, 0.5),
-                                10,
-                                Material.REDSTONE_TORCH.createBlockData());
-                        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
-
-                        blockLoc.getBlock().setType(Material.AIR);
-
-                        return;
-                    }
-
-                    if (clickedBlock.getType().equals(Material.SOUL_TORCH)) {
-                        world.spawnParticle(
-                                Particle.BLOCK_CRACK,
-                                blockLoc.add(0.5, 0, 0.5),
-                                10,
-                                Material.SOUL_TORCH.createBlockData());
-                        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
-
-                        clickedBlock.setType(Material.AIR);
-
-                        return;
-                    }
-
-                    if (blockLoc.getBlock().getType().equals(Material.SOUL_TORCH)) {
-                        world.spawnParticle(
-                                Particle.BLOCK_CRACK,
-                                blockLoc.add(0.5, 0, 0.5),
-                                10,
-                                Material.SOUL_TORCH.createBlockData());
-                        world.playSound(blockLoc, Sound.BLOCK_WOOD_BREAK, 1f, 1f);
-
-                        blockLoc.getBlock().setType(Material.AIR);
-
+                    if (
+                            blockLoc.getBlock().getType().equals(Material.SOUL_TORCH)
+                            || clickedBlock.getType().equals(Material.SOUL_TORCH)
+                            || blockLoc.add(0, 1, 0).getBlock().getType().equals(Material.REDSTONE_TORCH)
+                            || clickedBlock.getType().equals(Material.REDSTONE_TORCH)
+                    ) {
+                        spawnTorchParticles(world, blockLoc);
                         return;
                     }
 
@@ -285,20 +254,11 @@ public class FieldEvents implements Listener {
     }
 
     public void resetField(World world) {
-        for (int x = (int) rect.getMinX(); x < rect.getMaxX(); x++) {
-            for (int z = (int) rect.getMinY(); z < rect.getMaxY(); z++) {  // y in rect is z in game
-                world.getBlockAt(x, field.getY() + 1, z).setType(Material.AIR);
+        BuildField.buildField(rect, field, world);
 
-                Block block = world.getBlockAt(x, field.getY(), z);
-                block.setType(Material.STONE);
+        fieldArr = field.generateField();
+        freeSquareCount = field.getFreeSquares(fieldArr);
 
-                world.playSound(block.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.3f, 1f);
-                world.spawnParticle(Particle.EXPLOSION_HUGE, block.getLocation(), 10);
-
-                fieldArr = field.generateField();
-                freeSquareCount = field.getFreeSquares(fieldArr);
-            }
-        }
         isFirstClick = true;
         isOnReset = false;
     }
